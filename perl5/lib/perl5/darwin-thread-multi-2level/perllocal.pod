@@ -1,0 +1,44 @@
+=head2 Fri Jan 22 15:06:42 2016: C<Module> L<ExtUtils::MakeMaker|ExtUtils::MakeMaker>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 7.10>
+
+=item *
+
+C<EXE_FILES: bin/instmodsh>
+
+=back
+
+=head2 Fri Jan 22 15:14:35 2016: C<Module> L<local::lib|local::lib>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.000018>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
