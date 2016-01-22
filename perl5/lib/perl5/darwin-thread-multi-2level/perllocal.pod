@@ -372,3 +372,25 @@ C<EXE_FILES: script/plackup>
 
 =back
 
+=head2 Fri Jan 22 15:32:07 2016: C<Module> L<Twiggy|Twiggy>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.1025>
+
+=item *
+
+C<EXE_FILES: script/twiggy>
+
+=back
+
