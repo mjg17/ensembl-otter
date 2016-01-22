@@ -42,3 +42,25 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Fri Jan 22 15:25:17 2016: C<Module> L<App::cpanminus|App::cpanminus>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.7040>
+
+=item *
+
+C<EXE_FILES: bin/cpanm>
+
+=back
+
