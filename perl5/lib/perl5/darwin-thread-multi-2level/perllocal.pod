@@ -394,3 +394,69 @@ C<EXE_FILES: script/twiggy>
 
 =back
 
+=head2 Mon Jan 25 10:23:29 2016: C<Module> L<Test::Class|Test::Class>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.50>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Mon Jan 25 10:26:17 2016: C<Module> L<Carp|Carp>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.38>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Mon Jan 25 10:26:21 2016: C<Module> L<Test::Warn|Test::Warn>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.30>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
