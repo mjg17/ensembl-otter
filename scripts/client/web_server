@@ -1,0 +1,172 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use feature 'switch';
+
+package Bio::Otter::Plack::Main;
+
+use parent 'Plack::Component';
+use Plack::Util::Accessor qw( script );
+
+sub call {
+    my ($self, $env) = @_;
+    $self->script->log_message(__PACKAGE__ . ' call()');
+    return;
+}
+
+package Bio::Otter::GetScript::WebServer;
+
+use AnyEvent::Impl::Perl;       # (try to) ensure pure-perl loop is used
+use AnyEvent;
+use Twiggy::Server;
+
+use Zircon::Context::ZMQ::AnyEvent;
+use Zircon::Protocol;
+
+use base qw(
+    Bio::Otter::Utils::GetScript
+    Zircon::Protocol::Server
+);
+
+sub version { return 'web_server 0.1'; };
+sub log_filename { return 'web_server.txt'; }
+
+sub do_it {
+    my ($self) = @_;
+
+    $self->do_requires;
+
+    $self->log_message('starting web server');
+    $self->_setup_web_server;
+
+    $self->log_message('starting zircon');
+    $self->_setup_zircon;
+
+    AnyEvent::Impl::Perl::loop;
+
+    return;
+}
+
+# GetScript objects are singletons, hence these class members are simple variables.
+my $_server;
+my $_protocol;
+
+sub _setup_web_server {
+    my ($self) = @_;
+
+    my $web_port = $self->require_arg('web_port');
+    my $app = $self->_setup_app;
+
+    $_server = Twiggy::Server->new(
+        host => '127.0.0.1',
+        port => $web_port,
+    );
+    $_server->register_service($app);
+
+    return;
+}
+
+sub _setup_app {
+    my ($self) = @_;
+    my $app = Bio::Otter::Plack::Main->new( script => $self );
+    return $app->to_app;
+}
+
+sub _setup_zircon {
+    my ($self) = @_;
+
+    my $peer_socket = $self->require_arg('peer_socket');
+
+    my $context = Zircon::Context::ZMQ::AnyEvent->new(-trace_prefix => 'WSP');
+    $_protocol   = Zircon::Protocol->new(
+        -app_id     => 'web_server',
+        -app_tag    => 'otter_web',
+        -serialiser => 'JSON',
+        -context    => $context,
+        -server     => $self,
+        );
+
+    $_protocol->send_handshake(
+        $peer_socket,
+        sub {
+            my ($result) = @_;
+            $self->log_message(sprintf 'handshake: %s', _zircon_message($result));
+        },
+        );
+
+    return;
+}
+
+# FIXME: code dup with zircon/utterloss/bin/zapmop
+#
+sub _zircon_message {
+    my ($result) = @_;
+    for ($result) {
+        when ($_->isa('Zircon::Protocol::Result::Reply')) {
+            return $result->success ? 'succeeded' : 'failed';
+        }
+        when ($_->isa('Zircon::Protocol::Result::Timeout')) {
+            return 'timeout';
+        }
+        when (ref) {
+            return sprintf 'unknown result: class: %s', ref;
+        }
+    }
+    return 'unknown result';
+}
+
+sub zircon_server_protocol_command {
+    my ($self, $command, $view_id, $request_body) = @_;
+
+    # FIXME: some dup with Zircon::Protocol::Server::AppLauncher (and below, in process())
+    my $tag_entity_hash = { };
+    $tag_entity_hash->{$_->[0]} = $_ for @{$request_body};
+
+    for ($command) {
+
+        when ('ping') {
+            return $_protocol->message_ok('pong');
+        }
+
+        default {
+            my $reason = "Unknown web_server zircon command: '${command}'";
+            return $_protocol->message_command_unknown($reason);
+        }
+    }
+    return;
+}
+
+sub log_context {
+    return 'web_server';
+}
+
+sub DESTROY {
+    my ($self) = @_;
+    $self->log_message(      'DESTROY()');
+    $self->zircon_server_log('DESTROY()');
+
+    $_protocol = undef;
+    $_server   = undef;
+
+    return;
+}
+
+## no critic (Modules::ProhibitMultiplePackages)
+
+package main;
+
+use Log::Log4perl::Level;
+
+Bio::Otter::GetScript::WebServer
+    ->new(log4perl => $DEBUG)
+    ->run;
+
+exit;
+
+__END__
+
+=head1 AUTHOR
+
+Ana Code B<email> anacode@sanger.ac.uk

@@ -16,11 +16,13 @@ use Tk::DialogBox;
 use Tk::FileSelect;
 
 use Zircon::ZMap;
+use Zircon::Context::ZMQ::Tk;
 
 use Bio::Otter::Utils::About;
 use Bio::Otter::Utils::OpenSliceMixin;
 use Bio::Otter::UI::AboutBoxMixIn;
 use Bio::Otter::Lace::Client;
+use Bio::Otter::Zircon::WebServer;
 use Bio::Vega::Utils::URI qw( open_uri );
 use Tk::ScopedBusy;
 
@@ -145,6 +147,8 @@ sub new {
        -label => 'Show Error Log',
        -underline => 11,
        -command => [ $self, 'show_log' ]);
+
+    $self->_web_server($self->_web_server_proc);
 
     return $self;
 }
@@ -769,6 +773,42 @@ sub refresh_lock_display_for_slice {
             $sn->refresh_lock_columns;
         }
     }
+}
+
+sub _web_server_proc {
+    my ($self) = @_;
+
+    my $_web_server_proc = $self->_web_server;
+    return $_web_server_proc if $_web_server_proc;
+
+    $_web_server_proc = Bio::Otter::Zircon::WebServer->new(
+        '-app_id'             => 'Otter_Web_Server', # ?
+        '-context'            => $self->_new_zircon_context('WSS'),
+        '-arg_list'           => [
+            'session_dir=/var/tmp/otter_mg13/test_ws',
+            'web_port=8182',
+        ],
+#       $self->_zircon_timeouts, # how do we get these?
+        );
+    return $self->_web_server($_web_server_proc);
+}
+
+# FIXME: dup with SessionWindow
+sub _new_zircon_context {
+    my ($self, $prefix) = @_;
+    my $context = Zircon::Context::ZMQ::Tk->new(
+            '-widget'       => $self->menu_bar,
+            '-trace_prefix' => 'WebServerCtx',
+        );
+    $self->logger->debug(sprintf('New context: %s', $context));
+    return $context;
+}
+
+sub _web_server {
+    my ($self, @args) = @_;
+    ($self->{'_web_server'}) = @args if @args;
+    my $_web_server = $self->{'_web_server'};
+    return $_web_server;
 }
 
 1;
