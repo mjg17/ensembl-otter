@@ -5,16 +5,60 @@ use warnings;
 
 use feature 'switch';
 
+
+package Bio::Otter::Plack::Info;
+
+use JSON::XS;
+
+use Moo;
+extends 'Web::Machine::Resource';
+
+has protocol => ( is => 'rw' );
+
+sub init {
+    my ($self, $args) = @_;
+    $self->protocol($args->{protocol});
+    return;
+};
+
+sub content_types_provided {
+    return
+        [
+         { 'application/json' => 'to_json' },
+        ];
+}
+
+sub to_json {
+    my ($self) = @_;
+    $self->protocol->send_command('info');
+    return encode_json({ info => 'This is otter' });
+}
+
+
 package Bio::Otter::Plack::Main;
 
-use parent 'Plack::Component';
-use Plack::Util::Accessor qw( script );
+# use Module::Runtime qw( require_module );
+use Web::Machine;
+use Web::Simple;
 
-sub call {
-    my ($self, $env) = @_;
-    $self->script->log_message(__PACKAGE__ . ' call()');
-    return;
+has protocol => ( is => 'rw' );
+
+sub _make_wm {
+    my ($resource, $resource_args) = @_;
+    my $machine = Web::Machine->new(
+        resource      => $resource,
+        resource_args => $resource_args,
+        );
+    return $machine;
 }
+
+sub dispatch_request {
+    my ($self) = @_;
+    return (
+        sub (GET + /info) { _make_wm('Bio::Otter::Plack::Info', [ protocol => $self->protocol ]); },
+        );
+}
+
 
 package Bio::Otter::GetScript::WebServer;
 
@@ -33,6 +77,11 @@ use base qw(
 sub version { return 'web_server 0.1'; };
 sub log_filename { return 'web_server.txt'; }
 
+# GetScript objects are singletons, hence these class members are simple variables.
+my $_app;
+my $_server;
+my $_protocol;
+
 sub do_it {
     my ($self) = @_;
 
@@ -44,14 +93,13 @@ sub do_it {
     $self->log_message('starting zircon');
     $self->_setup_zircon;
 
+    $self->log_message('app isa ', ref $_app);
+    $_app->protocol($_protocol);
+
     AnyEvent::Impl::Perl::loop;
 
     return;
 }
-
-# GetScript objects are singletons, hence these class members are simple variables.
-my $_server;
-my $_protocol;
 
 sub _setup_web_server {
     my ($self) = @_;
@@ -63,15 +111,17 @@ sub _setup_web_server {
         host => '127.0.0.1',
         port => $web_port,
     );
-    $_server->register_service($app);
+    $_server->register_service($app->to_psgi_app);
+
+    $_app = $app;
 
     return;
 }
 
 sub _setup_app {
     my ($self) = @_;
-    my $app = Bio::Otter::Plack::Main->new( script => $self );
-    return $app->to_app;
+    my $app = Bio::Otter::Plack::Main->new();
+    return $app;
 }
 
 sub _setup_zircon {
@@ -149,6 +199,7 @@ sub DESTROY {
 
     $_protocol = undef;
     $_server   = undef;
+    $_app      = undef;
 
     return;
 }
