@@ -788,9 +788,15 @@ sub _web_server_proc {
             'session_dir=/var/tmp/otter_mg13/test_ws',
             'web_port=8182',
         ],
+        '-info_callback'      => sub { $self->_info_for_web_server },
 #       $self->_zircon_timeouts, # how do we get these?
         );
     return $self->_web_server($_web_server_proc);
+}
+
+sub _info_for_web_server {
+    my ($self) = @_;
+    return [ info => { name => 'Otter SpeciesListWindow' }, undef ]; # [ tag => attribs, content ]
 }
 
 # FIXME: dup with SessionWindow

@@ -28,10 +28,25 @@ sub content_types_provided {
         ];
 }
 
+sub _fetch_info {
+    my ($self) = @_;
+
+    my $result;
+    $self->protocol->send_command('info', undef, undef, sub { ($result) = @_ });
+
+    # YUK - dup with Zircon::ZMap handlers.
+    my %tag_attribs;
+    $tag_attribs{$_->[0]} = $_->[1] for @{$result->reply}; # [ tag => attribs, content ]
+
+    return {
+        info => $tag_attribs{info},
+    };
+}
+
 sub to_json {
     my ($self) = @_;
-    $self->protocol->send_command('info');
-    return encode_json({ info => 'This is otter' });
+    my $info = $self->_fetch_info;
+    return encode_json($info);
 }
 
 

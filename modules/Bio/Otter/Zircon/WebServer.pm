@@ -23,8 +23,8 @@ sub new {
         -peer_socket_opt => 'peer_socket',
         %arg_hash,
         );
-    # $new->_ping_callback($arg_hash{'-ping_callback'});
-    $new->log_context(        $arg_hash{'-log_context'});
+    $new->_info_callback($arg_hash{'-info_callback'});
+    $new->log_context(   $arg_hash{'-log_context'});
 
     $new->launch_app;
     return $new;
@@ -36,7 +36,7 @@ sub zircon_trace_prefix {
 }
 
 Readonly my %_dispatch_table => (
-    ping => { method => \&_ping },
+    info => { method => \&_info },
     );
 
 sub command_dispatch {
@@ -44,20 +44,24 @@ sub command_dispatch {
     return $_dispatch_table{$command};
 }
 
-sub _ping {
+sub _info {
     my ($self, $view_handler, $key_entity) = @_;
 
-    $self->logger->debug("_ping");
-    # $self->_ping_callback->($stuff);
-    return $self->protocol->message_ok('got ping, thanks.');
+    $self->logger->debug("_info");
+    my $info = $self->_info_callback->();
+    my $reply =
+        $info
+        ? [ undef, $info ]
+        : $self->protocol->message_command_failed('no info... failed');
+    return $reply;
 }
 
-# sub _ping_callback {
-#     my ($self, @args) = @_;
-#     ($self->{'_ping_callback'}) = @args if @args;
-#     my $_ping_callback = $self->{'_ping_callback'};
-#     return $_ping_callback;
-# }
+sub _info_callback {
+    my ($self, @args) = @_;
+    ($self->{'_info_callback'}) = @args if @args;
+    my $_info_callback = $self->{'_info_callback'};
+    return $_info_callback;
+}
 
 sub default_log_context {
     return '-B-O-Z-WebServer unnamed-';
