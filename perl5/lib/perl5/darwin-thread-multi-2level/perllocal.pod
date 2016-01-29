@@ -460,3 +460,135 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Fri Jan 29 09:06:43 2016: C<Module> L<Test::FailWarnings|Test::FailWarnings>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.008>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Jan 29 09:06:48 2016: C<Module> L<Test::Warnings|Test::Warnings>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.026>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Jan 29 09:06:52 2016: C<Module> L<HTTP::Headers::ActionPack|HTTP::Headers::ActionPack>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.09>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Jan 29 09:06:56 2016: C<Module> L<asa|asa>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.03>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Jan 29 09:06:57 2016: C<Module> L<IO::Handle::Util|IO::Handle::Util>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.01>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Fri Jan 29 09:07:08 2016: C<Module> L<Web::Machine|Web::Machine>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/mg13/Work/git/ensembl-otter/perl5/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.16>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
