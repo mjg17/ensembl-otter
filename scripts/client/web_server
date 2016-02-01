@@ -108,7 +108,7 @@ sub do_it {
     $self->log_message('starting zircon');
     $self->_setup_zircon;
 
-    $self->log_message('app isa ', ref $_app);
+    $self->log_message(sprintf('app isa %s', ref $_app));
     $_app->protocol($_protocol);
 
     AnyEvent::Impl::Perl::loop;
