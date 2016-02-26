@@ -1,0 +1,44 @@
+use strict;
+use utf8;
+
+use Otter::Paths qw(otter);
+
+use Plack::Builder;
+use Plack::Session::Store::Cache;
+use Plack::Session::State::Cookie;
+
+use OIDC::Lite::Server::Endpoint::Token;
+
+use Bio::Otter::Auth::Server::CHI;
+use Bio::Otter::Auth::ServerOP::App;
+use Bio::Otter::Auth::ServerRP::App;
+use Bio::Otter::Server::Config;
+
+my $config = Bio::Otter::Server::Config->Server;
+
+# Session and DB setup
+my $chi = Bio::Otter::Auth::Server::CHI->new($config->{ott_srv}->{CHI});
+
+my $token_endpoint = OIDC::Lite::Server::Endpoint::Token->new(
+    data_handler => 'Bio::Otter::Auth::ServerOP::DataHandler',
+);
+$token_endpoint->support_grant_types(qw(authorization_code));
+
+builder {
+
+    mount '/' => builder {
+        # enable static here if we need it
+        enable 'Plack::Middleware::ReverseProxy';
+        enable 'Plack::Middleware::Session',
+            store => Plack::Session::Store::Cache->new( cache => $chi ),
+            state => Plack::Session::State::Cookie->new( session_key => $config->{ott_srv}->{session_key} );
+        Bio::Otter::Auth::ServerOP::App->to_psgi_app();
+    };
+
+    # This might need session stuff
+    mount '/token'    => $token_endpoint;
+
+    mount '/callback' => Bio::Otter::Auth::ServerRP::App->to_psgi_app();
+
+};
+
