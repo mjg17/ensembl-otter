@@ -17,7 +17,7 @@ use Bio::Otter::Server::Config;
 my $config = Bio::Otter::Server::Config->Server;
 
 # Session and DB setup
-my $chi = Bio::Otter::Auth::Server::CHI->new($config->{ott_srv}->{CHI});
+my $chi = Bio::Otter::Auth::Server::CHI->new(%{$config->{ott_srv}->{CHI}});
 
 my $token_endpoint = OIDC::Lite::Server::Endpoint::Token->new(
     data_handler => 'Bio::Otter::Auth::ServerOP::DataHandler',
