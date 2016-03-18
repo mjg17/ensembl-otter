@@ -3,9 +3,16 @@ package Bio::Otter::Auth::Server::RelyingParty;
 use strict;
 use warnings;
 
+use Bio::Otter::Auth::Server::WebUtils qw( web_machine );
+
+# Strictly speaking we shouldn't need to do this, but CLASS->isa() is unreliable after
+# use_package_optimistically() in Web::Machine otherwise.
+#
+use Bio::Otter::Auth::Server::RelyingParty::Chooser;
+
 sub chooser_handler {
-    my ($pkg, $params) = @_;
-    return sub { [ 200, [ 'Content-type' => 'text/plain' ], [ 'RP_chooser' ] ] };
+    my ($pkg) = @_;
+    return web_machine('Bio::Otter::Auth::Server::RelyingParty::Chooser', []);
 }
 
 sub callback_handler {
