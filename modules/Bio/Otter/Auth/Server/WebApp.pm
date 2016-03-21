@@ -25,6 +25,9 @@ sub dispatch_request {
         sub ( GET  + /chooser ) {
             Bio::Otter::Auth::Server::RelyingParty->chooser_handler()
         },
+        sub ( GET  + /external/:ext_service ) {
+            Bio::Otter::Auth::Server::RelyingParty->external_handler($_[1])
+        },
         sub ( GET  + /callback/:ext_service ) {
             Bio::Otter::Auth::Server::RelyingParty->callback_handler($_[1])
         },

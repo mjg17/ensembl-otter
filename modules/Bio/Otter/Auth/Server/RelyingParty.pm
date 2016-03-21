@@ -15,6 +15,11 @@ sub chooser_handler {
     return web_machine('Bio::Otter::Auth::Server::RelyingParty::Chooser', []);
 }
 
+sub external_handler {
+    my ($pkg, $params) = @_;
+    return sub { [ 200, [ 'Content-type' => 'text/plain' ], [ 'RP_external, ext_service: ', $params->{ext_service} ] ] };
+}
+
 sub callback_handler {
     my ($pkg, $params) = @_;
     return sub { [ 200, [ 'Content-type' => 'text/plain' ], [ 'RP_callback, ext_service: ', $params->{ext_service} ] ] };
