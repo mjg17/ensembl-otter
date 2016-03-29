@@ -8,7 +8,7 @@ use Web::Simple;
 use Bio::Otter::Auth::Server::OIDCProvider;
 use Bio::Otter::Auth::Server::RelyingParty;
 
-sub dispatch_request {
+sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
     my ($self) = @_;
     return (
 
@@ -34,6 +34,6 @@ sub dispatch_request {
         );
 }
 
-__PACKAGE__->run_if_script;
+Bio::Otter::Auth::Server::WebApp->run_if_script;
 
 1;
