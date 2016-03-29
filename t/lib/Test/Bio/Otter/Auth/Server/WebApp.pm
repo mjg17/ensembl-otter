@@ -29,15 +29,22 @@ sub test_psgi_auth_basics : Tests {
 sub test_psgi_auth_plack : Tests {
 
     my $app = Plack::Util::load_psgi $auth_script;
+
     test_psgi
         app => $app,
         client => sub {
             my $cb = shift;
-        my $req = HTTP::Request->new(GET => 'http://localhost/');
-        my $res = $cb->($req);
-        is $res->code, 404;     # not found
-        note "Content: ", $res->content;
-    };
+
+            my $req = HTTP::Request->new(GET => 'http://localhost/');
+            my $res = $cb->($req);
+            is $res->code, 404;     # not found
+            note "Content: ", $res->content;
+
+            $req = HTTP::Request->new(GET => 'http://localhost/authenticate');
+            $res = $cb->($req);
+            is $res->code, 307;     # redirect
+            is $res->headers->header('Location'), 'http://localhost/chooser';
+        };
 
     return;
 }
