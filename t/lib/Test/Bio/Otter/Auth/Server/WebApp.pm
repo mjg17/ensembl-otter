@@ -1,7 +1,7 @@
 package Test::Bio::Otter::Auth::Server::WebApp;
 
 use Test::Class::Most
-    parent     => 'OtterTest::Class';
+    parent     => 'Test::Bio::Otter::Auth::Server';
 
 use Plack::Test;
 use Plack::Util;
@@ -16,21 +16,6 @@ sub build_attributes { return; } # none
 my $auth_script;
 BEGIN {
     $auth_script = Test::Otter->proj_rel('scripts/psgi/auth');
-
-    $ENV{OTTER_WEB_STREAM} = 'TEST';
-}
-
-{
-    my $prev_ASC;
-
-    sub _set_ASC : Test(startup) {
-        $prev_ASC = $ENV{ANACODE_SERVER_CONFIG};
-        $ENV{ANACODE_SERVER_CONFIG} = Test::Otter->proj_rel('t/etc/server-config');
-    }
-
-    sub _restore_ASC : Test(shutdown) {
-        $ENV{ANACODE_SERVER_CONFIG} = $prev_ASC;
-    }
 }
 
 sub test_psgi_auth_basics : Tests {
