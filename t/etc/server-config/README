@@ -1,0 +1,8 @@
+A suitable .local/databases.yaml with credentials for otterlive_rw
+is required.
+
+This MUST NOT be added to git, and will not show in git status output
+due to the .gitignore file in this directory.
+
+A symlink to _OTTER_VERSION will need to be added for each increment
+of dist/conf/version_major.

@@ -1,0 +1,39 @@
+# The anacode user in the anacode user_group is for tests.
+#
+---
+species_groups:
+  dev:
+    - human_dev
+    - human_test
+user_groups:
+  annotools:
+    write:
+      - human_test
+    users:
+      - edgrif
+      - gb10
+      - sm23
+  anacode:
+    write:
+      - human_dev
+      - human_test
+    users:
+      - anacode
+      - jgrg
+      - hav-test
+      - mg13
+          write:
+            - mouse_test
+  anacode_auth_test:
+    users:
+      - pagesmith-test2-mca@t8o.org:
+          write: []
+      - wtsitest1-mca@t8o.org:
+          write: []
+      - wtsi-test-1@test.michaelgray.info:
+          write: []
+      - read-check@fictitious.sanger.ac.uk:
+          read:
+            - :main
+            - :restricted
+            - :dev

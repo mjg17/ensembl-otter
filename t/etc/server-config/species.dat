@@ -1,0 +1,28 @@
+# NB. if removing a dataset, to prevent errors
+# first remove all references from access.yaml
+
+[defaults]
+DBSPEC      otterlive_rw
+DNA_DBSPEC  otterlive_rw
+
+[human_test]
+DBNAME      jgrg_human_test
+DBSPEC      otterpipe2_rw
+DNA_DBNAME  loutre_human
+DNA_DBSPEC  otterlive
+ALIAS       human
+
+[human_dev]
+DBNAME      jgrg_human_dev
+DBSPEC      otterpipe2_rw
+DNA_DBNAME  loutre_human
+DNA_DBSPEC  otterlive
+ALIAS       human
+
+[mouse_test]
+DBNAME      jgrg_mouse_test
+DBSPEC      otterpipe2_rw
+DNA_DBNAME  loutre_mouse
+DNA_DBSPEC  otterlive
+ALIAS       mouse
+

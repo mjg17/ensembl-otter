@@ -1,0 +1,28 @@
+# core non-private server config common to all streams
+---
+ott_srv:
+  CHI:
+    driver: DBI
+    DBI:
+      dbspec:   otterlive_rw
+      database: otter_server
+    # l1_cache:
+    #   driver: Memcached
+    #   # servers: see .local/server.__STREAM__.yaml
+    namespace: server___STREAM___sessions
+    #
+  session_key: otter___STREAM___sid
+  #
+ott_srv_op:
+  id_token:
+    iss:        __LOCAL(uri_base)__/auth
+    expires_in: 604800 # 3600*24*7 TBD
+  #
+ext_op:
+  google:
+    scope:         openid email profile
+    redirect_uri:  __LOCAL(uri_base)__/auth/callback/google
+  orcid:
+    scope:         /orcid-profile/read-limited
+    redirect_uri:  __LOCAL(uri_base)__/auth/callback/orcid
+...

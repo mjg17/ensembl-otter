@@ -1,0 +1,20 @@
+# Database server changes need making in several places:
+#
+#   - here
+#   - possibly also in satellite stringy-eval meta keys
+---
+dbspec:
+  otlp_slave:
+    -host: mcs18
+    -port: 3324
+    -user: ottro
+  otterlive:
+    -host: otterlive
+    -port: 3324
+    -user: ottro
+    -ro_dbspec: otlp_slave
+  otterlive_rw:
+    # user and pass supplied separately
+    -host: vm-mii-otlp
+    -port: 3324
+    -ro_dbspec: otlp_slave
