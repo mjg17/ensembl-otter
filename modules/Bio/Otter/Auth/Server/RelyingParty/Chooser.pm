@@ -3,8 +3,12 @@ package Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use strict;
 use warnings;
 
+## no critic(Subroutines::ProhibitCallsToUndeclaredSubs)
+
 use Moo;
 extends 'Web::Machine::Resource';
+
+## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 sub malformed_request {
     my ($self) = @_;
@@ -13,7 +17,7 @@ sub malformed_request {
     return 1;
 }
 
-sub content_types_provided { [{'text/html' => 'to_html'}] }
+sub content_types_provided { return [{'text/html' => 'to_html'}] }
 
 sub to_html {
     my ($self) = @_;
