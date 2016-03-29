@@ -18,7 +18,19 @@ BEGIN {
     $auth_script = Test::Otter->proj_rel('scripts/psgi/auth');
 
     $ENV{OTTER_WEB_STREAM} = 'TEST';
-    $ENV{ANACODE_SERVER_CONFIG} = Test::Otter->proj_rel('t/etc/server-config');
+}
+
+{
+    my $prev_ASC;
+
+    sub _set_ASC : Test(startup) {
+        $prev_ASC = $ENV{ANACODE_SERVER_CONFIG};
+        $ENV{ANACODE_SERVER_CONFIG} = Test::Otter->proj_rel('t/etc/server-config');
+    }
+
+    sub _restore_ASC : Test(shutdown) {
+        $ENV{ANACODE_SERVER_CONFIG} = $prev_ASC;
+    }
 }
 
 sub test_psgi_auth_basics : Tests {
