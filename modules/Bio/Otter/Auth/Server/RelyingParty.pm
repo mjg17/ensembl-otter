@@ -9,6 +9,7 @@ use Bio::Otter::Auth::Server::WebUtils qw( web_machine );
 # use_package_optimistically() in Web::Machine otherwise.
 #
 use Bio::Otter::Auth::Server::RelyingParty::Chooser;
+use Bio::Otter::Auth::Server::RelyingParty::External;
 
 sub chooser_handler {
     my ($pkg) = @_;
@@ -17,7 +18,7 @@ sub chooser_handler {
 
 sub external_handler {
     my ($pkg, $params) = @_;
-    return sub { [ 200, [ 'Content-type' => 'text/plain' ], [ 'RP_external, ext_service: ', $params->{ext_service} ] ] };
+    return web_machine('Bio::Otter::Auth::Server::RelyingParty::External', [ %$params ]);
 }
 
 sub callback_handler {
