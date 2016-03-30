@@ -24,5 +24,5 @@ builder {
         store => Plack::Session::Store::Cache->new( cache => $chi ),
         state => Plack::Session::State::Cookie->new( session_key => $config->{ott_srv}->{session_key} );
 
-    Bio::Otter::Auth::Server::WebApp->to_psgi_app();
+    Bio::Otter::Auth::Server::WebApp->new( config => $config )->to_psgi_app();
 };
