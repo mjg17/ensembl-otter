@@ -44,6 +44,15 @@ sub test_psgi_auth_plack : Tests {
             $res = $cb->($req);
             is $res->code, 307;     # redirect
             is $res->headers->header('Location'), 'http://localhost/chooser';
+            my $session_cookie = $res->headers->header('Set-Cookie');
+            ok $session_cookie, '... has session cookie';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/chooser');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 200;
+            ok $res->content, '... has content';
+            note "Content: ", $res->content;
         };
 
     return;
