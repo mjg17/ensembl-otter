@@ -20,8 +20,13 @@ ott_srv_op:
   #
 ext_op:
   google:
-    scope:         openid email profile
-    redirect_uri:  __LOCAL(uri_base)__/auth/callback/google
+    authorization_endpoint: https://accounts.google.com/o/oauth2/auth
+    token_endpoint:         https://accounts.google.com/o/oauth2/token
+    scope:                  openid email profile
+    redirect_uri:           __LOCAL(uri_base)__/auth/callback/google
+    auth_extra:
+      # Why is this set?
+      access_type: offline
   orcid:
     scope:         /orcid-profile/read-limited
     redirect_uri:  __LOCAL(uri_base)__/auth/callback/orcid

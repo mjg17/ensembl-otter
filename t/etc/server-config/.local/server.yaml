@@ -1,0 +1,10 @@
+# may be overridden in server_<stream>.yaml, esp sandbox for ext_op sandbox credentials
+---
+ext_op:
+  google:
+    client_id:     My_Google_Client_ID
+    client_secret: My_Google_Client_Secret
+  orcid:
+    client_id:     My_Orcid_Client_ID
+    client_secret: My_Orcid_Client_Secret
+...

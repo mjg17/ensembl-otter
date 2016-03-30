@@ -51,6 +51,17 @@ sub test_psgi_auth_plack : Tests {
             is $res->code, 200;
             ok $res->content, '... has content';
             note "Content: ", $res->content;
+
+            $req = HTTP::Request->new(GET => 'http://localhost/external/xxx');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 404, '... external needs a service we support ...';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/external/google');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 307, '... google redirect ...';
+            like $res->headers->header('Location'), qr(^https://accounts.google.com/o/oauth2/auth), '... header';
         };
 
     return;
