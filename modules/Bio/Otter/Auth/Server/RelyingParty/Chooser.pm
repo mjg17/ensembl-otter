@@ -23,6 +23,7 @@ sub to_html {
     my ($self) = @_;
 
     my $base   = $self->request->base;
+    $base =~ s|/$||;
     # FIXME: Should generate list, and URLs, from config
     return << "__EO_HTML__";
 <html>
