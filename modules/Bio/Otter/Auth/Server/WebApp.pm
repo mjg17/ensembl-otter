@@ -3,17 +3,33 @@ package Bio::Otter::Auth::Server::WebApp;
 use strict;
 use warnings;
 
-use Web::Simple;
+use Web::Simple;                # becomes our parent
+
+use Module::Load qw( load );
 
 use Bio::Otter::Auth::Server::OIDCProvider;
-use Bio::Otter::Auth::Server::RelyingParty;
+use Bio::Otter::Auth::Server::WebApp::Machine;
+
+sub _web_machine {
+    my ($self, $resource, $request_params) = @_;
+
+    $resource = 'Bio::Otter::Auth::Server::' . $resource;
+    load $resource;
+
+    my $machine = Bio::Otter::Auth::Server::WebApp::Machine->new(
+        resource      => $resource,
+        config        => $self->config,
+        request_params => $request_params // {},
+        );
+    return $machine->to_app;
+}
 
 sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
     my ($self) = @_;
     return (
 
         sub ( GET  + /authenticate + ?:cli_instance~&:state~&:callback_uri~ ) {
-            return Bio::Otter::Auth::Server::OIDCProvider->authenticate_handler($_[1]);
+            return $self->_web_machine('OIDCProvider::Authenticate', $_[1]);
         },
         sub ( POST + /token ) {
             Bio::Otter::Auth::Server::OIDCProvider->token_handler()
@@ -23,13 +39,13 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
         },
 
         sub ( GET  + /chooser ) {
-            Bio::Otter::Auth::Server::RelyingParty->chooser_handler()
+            return $self->_web_machine('RelyingParty::Chooser');
         },
         sub ( GET  + /external/:ext_service ) {
-            Bio::Otter::Auth::Server::RelyingParty->external_handler($_[1])
+            return $self->_web_machine('RelyingParty::External', $_[1]);
         },
         sub ( GET  + /callback/:ext_service ) {
-            Bio::Otter::Auth::Server::RelyingParty->callback_handler($_[1])
+            return $self->_web_machine('RelyingParty::Callback', $_[1]);
         },
         );
 }

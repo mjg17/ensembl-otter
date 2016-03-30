@@ -6,7 +6,7 @@ use warnings;
 ## no critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 use Moo;
-extends 'Web::Machine::Resource';
+extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
 # consider using DrinkUp pattern instead
 has ext_service     => ( is => 'rw' );

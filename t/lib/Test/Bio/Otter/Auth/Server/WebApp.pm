@@ -9,8 +9,6 @@ use Plack::Util;
 use Test::Otter;
 use Test::Perl::Critic;
 
-use Bio::Otter::Git;
-
 sub build_attributes { return; } # none
 
 my $auth_script;
