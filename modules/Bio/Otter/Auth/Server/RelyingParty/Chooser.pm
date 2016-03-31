@@ -10,6 +10,8 @@ extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
+use HTML::Tags;
+
 sub malformed_request {
     my ($self) = @_;
     return if $self->request->session->{exists};
@@ -22,18 +24,26 @@ sub content_types_provided { return [{'text/html' => 'to_html'}] }
 sub to_html {
     my ($self) = @_;
 
-    my $base   = $self->request->base;
-    $base =~ s|/$||;
-    # FIXME: Should generate list, and URLs, from config
-    return << "__EO_HTML__";
-<html>
- Log in using:
- <ul>
-  <li><a href="$base/external/google">Google</a></li>
-  <li><a href="$base/external/orcid" >ORCID</a></li>
- </ul>
-</html>
-__EO_HTML__
+    my $provider_config = $self->config->{ext_op};
+    my $base = $provider_config->{ext_uri_base};
+    my @providers;
+    foreach my $key (sort keys %$provider_config) {
+        my $provider = $provider_config->{$key};
+        next unless ref $provider;
+        push @providers,
+        <li>,
+          <a href="$base/$key">, $provider->{title}, </a>,
+        </li>;
+    }
+
+    return [ HTML::Tags::to_html_string(
+        <html>,
+          "Log in using:",
+          <ul>,
+            @providers,
+          </ul>,
+        </html>,
+             ) ];
 }
 
 1;

@@ -22,7 +22,9 @@ ott_srv_rp:
   chooser_uri: __LOCAL(uri_base)__/chooser
   #
 ext_op:
+  ext_uri_base: __LOCAL(uri_base)__/external
   google:
+    title:                  Google
     authorization_endpoint: https://accounts.google.com/o/oauth2/auth
     token_endpoint:         https://accounts.google.com/o/oauth2/token
     scope:                  openid email profile
@@ -31,6 +33,7 @@ ext_op:
       # Why is this set?
       access_type: offline
   orcid:
+    title:                  ORCID
     scope:         /orcid-profile/read-limited
     redirect_uri:  __LOCAL(uri_base)__/auth/callback/orcid
 ...
