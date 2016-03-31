@@ -10,6 +10,12 @@ use Module::Load qw( load );
 use Bio::Otter::Auth::Server::OIDCProvider;
 use Bio::Otter::Auth::Server::WebApp::Machine;
 
+# TEMP workaround for Apache2 / Otter::Paths only run once ??
+#
+use Bio::Otter::Auth::Server::OIDCProvider::Authenticate;
+use Bio::Otter::Auth::Server::RelyingParty::Chooser;
+use Bio::Otter::Auth::Server::RelyingParty::External;
+
 sub _web_machine {
     my ($self, $resource, $request_params) = @_;
 
