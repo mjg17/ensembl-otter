@@ -41,7 +41,7 @@ sub test_psgi_auth_plack : Tests {
             $req = HTTP::Request->new(GET => 'http://localhost/authenticate');
             $res = $cb->($req);
             is $res->code, 307;     # redirect
-            is $res->headers->header('Location'), 'http://localhost/chooser';
+            is $res->headers->header('Location'), 'NOT_SET/chooser';
             my $session_cookie = $res->headers->header('Set-Cookie');
             ok $session_cookie, '... has session cookie';
 

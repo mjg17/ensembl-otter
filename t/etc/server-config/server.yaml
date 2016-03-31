@@ -18,6 +18,9 @@ ott_srv_op:
     iss:        __LOCAL(uri_base)__/auth
     expires_in: 604800 # 3600*24*7 TBD
   #
+ott_srv_rp:
+  chooser_uri: __LOCAL(uri_base)__/chooser
+  #
 ext_op:
   google:
     authorization_endpoint: https://accounts.google.com/o/oauth2/auth
