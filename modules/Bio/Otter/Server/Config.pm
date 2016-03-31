@@ -544,6 +544,10 @@ Three macros are provided for use in YAML config files:
 
 Replaced with the value of environment variable C<env_var>.
 
+=item __MAJOR__
+
+Short-hand for C<__ENV(OTTER_MAJOR)__>.
+
 =item __STREAM__
 
 Short-hand for C<__ENV(OTTER_WEB_STREAM)__>.
@@ -594,6 +598,7 @@ sub _finalise_config {
     my %subs = (
         ENV    => \&_subst_from_env,
         LOCAL  => \&_subst_from_local,
+        MAJOR  => sub { shift->_subst_from_env(shift, 'OTTER_MAJOR') },
         STREAM => sub { shift->_subst_from_env(shift, 'OTTER_WEB_STREAM') },
         );
     my $subsre = join( '|', keys %subs );

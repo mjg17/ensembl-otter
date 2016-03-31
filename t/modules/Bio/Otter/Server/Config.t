@@ -7,7 +7,7 @@ use Test::More;
 use Try::Tiny;
 use File::Temp 'tempdir';
 use File::Path 'make_path';
-use YAML::Any;
+use YAML::Any qw( DumpFile );
 
 use Test::Otter 'try_err';
 
@@ -296,7 +296,7 @@ sub yaml_tt {
     __chmod(0600, "$dir/.local/databases.test.yaml");
 
     like(try_err { $BOSC->_get_yaml('databases.yaml') },
-         qr{^ERR:YAML Error},
+         qr{^ERR:},
          'Bad YAML');
 
     __write_yaml($dir);
@@ -325,19 +325,19 @@ sub yaml_tt {
 sub __write_yaml {
     my ($dir) = @_;
 
-    YAML::DumpFile("$dir/databases.yaml", {
+    DumpFile("$dir/databases.yaml", {
         a => 1,
         b => {
             c => 2,
             d => [3, 4],
         },
                    });
-    YAML::DumpFile("$dir/.local/databases.yaml", {
+    DumpFile("$dir/.local/databases.yaml", {
         LOCAL => { 'colour' => 'Red' },
         b => { e => 'boo' },
         f => 'hoo',
                    });
-    YAML::DumpFile("$dir/.local/databases.test.yaml", {
+    DumpFile("$dir/.local/databases.test.yaml", {
         b => { e => 'changed' },
         g => 42,
         h => '__ENV(ANACODE_SERVER_CONFIG)__',
