@@ -11,9 +11,10 @@ use Test::Perl::Critic;
 
 sub build_attributes { return; } # none
 
-my $auth_script;
+my ($auth_script, $redirect_script);
 BEGIN {
-    $auth_script = Test::Otter->proj_rel('scripts/psgi/auth');
+    $auth_script     = Test::Otter->proj_rel('scripts/psgi/auth');
+    $redirect_script = Test::Otter->proj_rel('scripts/psgi/_version_independent/_auth_version_rewrite');
 }
 
 sub test_psgi_auth_basics : Tests {
@@ -63,6 +64,50 @@ sub test_psgi_auth_plack : Tests {
             is $res->code, 307, '... google redirect ...';
             like $res->headers->header('Location'), qr(^https://accounts.google.com/o/oauth2/auth), '... header';
         };
+
+    return;
+}
+
+sub test_psgi_redirect_basics : Tests {
+
+    require_ok($redirect_script);
+    critic_ok( $redirect_script);
+
+    return;
+}
+
+sub test_psgi_redirect_plack : Tests {
+
+    my $app = Plack::Util::load_psgi $redirect_script;
+
+    test_psgi
+        app => $app,
+        client => sub {
+            my $cb = shift;
+
+            my $req = HTTP::Request->new(GET => 'https://localhost/auth/callback?state=102:deadbeef');
+            my $res = $cb->($req);
+            is $res->code, 307, 'redirect ...';
+            my $loc = $res->headers->header('Location');
+            like $loc, qr(^https://localhost/102/auth), '... header';
+            note "Location: $loc";
+
+            $req = HTTP::Request->new(GET => 'https://localhost/auth/callback');
+            $res = $cb->($req);
+            is $res->code, 400, 'fail no state ...';
+
+            $req = HTTP::Request->new(GET => 'https://localhost/auth/callback?state=deadbeef');
+            $res = $cb->($req);
+            is $res->code, 400, 'fail malformed state ...';
+
+            $req = HTTP::Request->new(GET => 'https://localhost/auth/callback?state=strange:deadbeef');
+            $res = $cb->($req);
+            is $res->code, 400, 'fail illegal version ...';
+
+            $req = HTTP::Request->new(GET => 'https://localhost/not_auth/callback?state=strange:deadbeef');
+            $res = $cb->($req);
+            is $res->code, 400, 'fail bad uri ...';
+    };
 
     return;
 }

@@ -1,0 +1,43 @@
+use strict;
+use warnings;
+
+use Plack::Request;
+use URI;
+
+sub _fail {
+    my ($res, $reason) = @_;
+    warn "_auth_version_rewrite: $reason\n";
+    return $res->finalize;
+}
+
+my $app = sub {
+   my $env   = shift;
+
+   my $req   = Plack::Request->new($env);
+   my $res   = $req->new_response(400, [], "Failed auth_version_rewrite");
+
+   my $state = $req->query_parameters->{state};
+   return _fail($res, "no state query_parameter")  unless $state;
+
+   my ($ver, $rest) = ($state =~ m/^([^:]+):(.+)$/);
+   return _fail($res, "malformed state parameter") unless $ver;
+
+   ($ver) = ($ver =~ /^(\d+(?:_\w+)?)$/);  # looks like a major version with optional feature tag
+   return _fail($res, "illegal version string")    unless $ver;
+
+   my $uri  = $req->uri;
+   my $path = $uri->path;
+   return _fail($res, "bad request uri") unless $path =~ m|^/auth/|;
+
+   $path =~ s|^/auth|/$ver/auth|; # do the rewrite!
+
+   $uri->path($path);
+
+   $res->status(307);
+   $res->body("Redirecting to version-specific script");
+   $res->headers({ Location => $uri->as_string });
+
+   return $res->finalize;
+};
+
+$app;
