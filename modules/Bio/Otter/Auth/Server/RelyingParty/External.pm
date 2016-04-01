@@ -62,7 +62,9 @@ sub _generate_save_state {
 
 sub _generate_state {
     my ($self, $service) = @_;
-    return unpack('H*', $service . random_pseudo_bytes(32)); # OIDC::Lite::Demo::Client::Session uses existing if present
+    my $rand = unpack('H*', $service . random_pseudo_bytes(32)); # OIDC::Lite::Demo::Client::Session uses existing if present
+    my $version = $ENV{OTTER_MAJOR};
+    return "$version:$rand";
 }
 
 sub _set_state {
