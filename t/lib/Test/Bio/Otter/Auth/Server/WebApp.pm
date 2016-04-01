@@ -5,6 +5,8 @@ use Test::Class::Most
 
 use Plack::Test;
 use Plack::Util;
+use URI;
+use URI::QueryParam;
 
 use Test::Otter;
 use Test::Perl::Critic;
@@ -26,6 +28,8 @@ sub test_psgi_auth_basics : Tests {
 }
 
 sub test_psgi_auth_plack : Tests {
+
+    $ENV{OTTER_MAJOR} = '102'; # TMP - what to do longer-term?
 
     my $app = Plack::Util::load_psgi $auth_script;
 
@@ -56,13 +60,41 @@ sub test_psgi_auth_plack : Tests {
             $req = HTTP::Request->new(GET => 'http://localhost/external/xxx');
             $req->header('Cookie' => $session_cookie);
             $res = $cb->($req);
-            is $res->code, 404, '... external needs a service we support ...';
+            is $res->code, 400, '... external needs a service we support ...';
 
             $req = HTTP::Request->new(GET => 'http://localhost/external/google');
             $req->header('Cookie' => $session_cookie);
             $res = $cb->($req);
             is $res->code, 307, '... google redirect ...';
-            like $res->headers->header('Location'), qr(^https://accounts.google.com/o/oauth2/auth), '... header';
+            my $location = $res->headers->header('Location');
+            like $location, qr(^https://accounts.google.com/o/oauth2/auth), '... header';
+            my $state = URI->new($location)->query_param('state');
+            ok $state, '... state';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/callback/xxx?state=babing&code=boing');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 400, '... callback needs a service we support ...';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/callback/google');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 400, '... callback needs state & code ...';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/callback/google?state=babing');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 400, '... callback needs code too ...';
+
+            $req = HTTP::Request->new(GET => 'http://localhost/callback/google?state=babing&code=doing');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 403, '... callback state mismatch ...';
+
+            $req = HTTP::Request->new(GET => "http://localhost/callback/google?state=${state}&code=doing");
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 307, '... callback redirects ...';
         };
 
     return;

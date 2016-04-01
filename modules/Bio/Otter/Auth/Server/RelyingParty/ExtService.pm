@@ -27,15 +27,18 @@ sub _build__service_config {
 
 sub malformed_request {
     my ($self) = @_;
-    return not $self->ext_service;
+    $self->_wm_warn('/:service not specified'), return 1 unless $self->ext_service;
+
+    unless ($self->_service_config) {
+        my $es = $self->ext_service;
+        $self->_wm_warn("no config for service '$es'");
+        return 1;
+    }
+
+    return;
 }
 
-sub previously_existed {
-    my ($self) = @_;
-    unless ($self->_service_config) {
-        return;                 # => 404 not found
-    }
-    return 1;
-}
+# Should this be here or elsewhere?
+sub previously_existed { return 1; }
 
 1;

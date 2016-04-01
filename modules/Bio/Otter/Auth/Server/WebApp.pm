@@ -13,19 +13,22 @@ use Bio::Otter::Auth::Server::WebApp::Machine;
 # TEMP workaround for Apache2 / Otter::Paths only run once ??
 #
 use Bio::Otter::Auth::Server::OIDCProvider::Authenticate;
+use Bio::Otter::Auth::Server::RelyingParty::Callback;
 use Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use Bio::Otter::Auth::Server::RelyingParty::External;
 
 sub _web_machine {
-    my ($self, $resource, $request_params) = @_;
+    my ($self, $resource, $path_params, $query_params) = @_;
 
     $resource = 'Bio::Otter::Auth::Server::' . $resource;
     load $resource;
 
+    my %params = ( %{ $path_params // {} }, %{ $query_params // {} } );
+
     my $machine = Bio::Otter::Auth::Server::WebApp::Machine->new(
         resource      => $resource,
         config        => $self->config,
-        request_params => $request_params // {},
+        request_params => \%params,
         );
     return $machine->to_app;
 }
@@ -50,8 +53,8 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
         sub ( GET  + /external/:ext_service ) {
             return $self->_web_machine('RelyingParty::External', $_[1]);
         },
-        sub ( GET  + /callback/:ext_service ) {
-            return $self->_web_machine('RelyingParty::Callback', $_[1]);
+        sub ( GET  + /callback/:ext_service + ?:state~&:code~ ) {
+            return $self->_web_machine('RelyingParty::Callback', $_[1], $_[2]);
         },
         );
 }

@@ -12,4 +12,16 @@ has config => ( is => 'ro' );
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
+sub _wm_warn {
+    my ($self, $msg) = @_;
+    warn sprintf "-- %s: %s\n", ref($self), $msg;
+    return;
+}
+
+sub _wm_die {                   # FIXME: not useful??
+    my ($self, $msg) = @_;
+    $self->_wm_warn($msg);
+    die sprintf "!! %s: %s\n", ref($self), $msg;
+}
+
 1;
