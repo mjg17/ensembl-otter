@@ -50,9 +50,13 @@ sub moved_temporarily {
     my ($self) = @_;
     my $config = $self->_service_config;
 
-    $self->_get_access_token($self->code); # FIXME: TEST VALUE
+    my ($token, $response) = $self->_get_access_token($self->code);
+    return 'ERROR' unless $token;
 
-    return "FIXME"; # $uri;
+    my $user_info = $self->decode_token_response($token, $response);
+    return 'ERROR' unless $user_info;
+
+    return 'HAVE_TOKEN';    # $uri
 }
 
 # FIXME: state handling stuff should be somewhere common
@@ -77,7 +81,23 @@ sub _verify_state {
 }
 
 sub _get_access_token {
-    return;
+    my ($self, $code) = @_;
+
+    my $config = $self->_service_config;
+
+    my $client = $self->web_client($self->_service_config);
+
+    my $token = $client->get_access_token(
+        code         => $code,
+        redirect_uri => $config->{redirect_uri},
+        );
+    my $response = $client->last_response;
+
+    unless ($token) {
+        $self->_wm_warn(sprintf "failed to get access token, '%s'", $response->content);
+    }
+
+    return ($token, $response);
 }
 
 1;
