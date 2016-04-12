@@ -11,7 +11,6 @@ extends 'Bio::Otter::Auth::Server::RelyingParty::ExtService';
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 use Crypt::OpenSSL::Random            qw( random_pseudo_bytes );
-use OAuth::Lite2::Client::WebServer;
 
 sub content_types_provided { return [{'*/*' => sub { return 'Not expecting to render!'} }] }
 
@@ -49,22 +48,11 @@ sub _set_state {
 
 sub _auth_endpoint {
     my ($self, $config, $state) = @_;
-    return $self->_client($config)->uri_to_redirect(
+    return $self->web_client($config)->uri_to_redirect(
         redirect_uri => $config->{'redirect_uri'},
         scope        => $config->{'scope'},
         state        => $state,
         extra        => $config->{'auth_extra'} || {},
-        );
-}
-
-sub _client {
-    my ($self, $config) = @_;
-
-    return OAuth::Lite2::Client::WebServer->new(
-        id               => $config->{'client_id'},
-        secret           => $config->{'client_secret'},
-        authorize_uri    => $config->{'authorization_endpoint'},
-        access_token_uri => $config->{'token_endpoint'},
         );
 }
 
