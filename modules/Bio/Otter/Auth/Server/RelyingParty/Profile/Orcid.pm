@@ -7,13 +7,13 @@ use warnings;
 
 use Moo::Role;
 
-requires '_wm_warn';
+requires 'wm_warn';
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 sub decode_token_response {
     my ($self, $token, $response) = @_;
-    $self->_wm_warn('Orcid decode_token_response not implemented yet.');
+    $self->wm_warn('Orcid decode_token_response not implemented yet.');
     return;
 }
 

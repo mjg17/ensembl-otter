@@ -17,18 +17,18 @@ has session_state => ( is => 'rw' );
 
 sub content_types_provided { return [{'*/*' => sub { return 'Not expecting to render!'} }] }
 
-around malformed_request => sub {
+around malformed_request => sub { ##  no critic(Subroutines::ProhibitCallsToUndeclaredSubs)
     my ($orig, $self) = @_;
 
     my $ext_service_mf = $orig->($self);
     return $ext_service_mf if $ext_service_mf;
 
-    $self->_wm_warn('state not supplied'), return 1 unless $self->state;
-    $self->_wm_warn('code not supplied'),  return 1 unless $self->code;
+    do { $self->wm_warn('state not supplied'); return 1 } unless $self->state;
+    do { $self->wm_warn('code not supplied');  return 1 } unless $self->code;
 
     # SEE ALSO ::Chooser
     my $session_state = $self->_get_state($self->ext_service);
-    $self->_wm_warn('no session state'), return 1 unless $session_state;
+    do { $self->wm_warn('no session state'); return 1 } unless $session_state;
     $self->session_state($session_state);
 
     return;
@@ -39,7 +39,7 @@ sub forbidden {
 
     return if $self->_verify_state($self->session_state, $self->state);
 
-    $self->_wm_warn('state mismatch');
+    $self->wm_warn('state mismatch');
     return 1;
 }
 
@@ -73,7 +73,7 @@ sub _verify_state {
     return unless $callback_state;
 
     unless ($session_state eq $callback_state) {
-        $self->_wm_warn(sprintf "session state '%s' != callback state '%s'", $session_state, $callback_state);
+        $self->wm_warn(sprintf "session state '%s' != callback state '%s'", $session_state, $callback_state);
         return;
     }
 
@@ -94,7 +94,7 @@ sub _get_access_token {
     my $response = $client->last_response;
 
     unless ($token) {
-        $self->_wm_warn(sprintf "failed to get access token, '%s'", $response->content);
+        $self->wm_warn(sprintf "failed to get access token, '%s'", $response->content);
     }
 
     return ($token, $response);

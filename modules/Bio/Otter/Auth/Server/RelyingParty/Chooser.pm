@@ -36,7 +36,7 @@ sub to_html {
         </li>;
     }
 
-    return [ HTML::Tags::to_html_string(
+    return [ HTML::Tags::to_html_string(   ## no critic(Subroutines::ProhibitCallsToUnexportedSubs)
         <html>,
           "Log in using:",
           <ul>,

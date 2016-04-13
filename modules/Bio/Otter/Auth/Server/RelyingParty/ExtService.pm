@@ -17,7 +17,7 @@ has _service_config => ( is => 'ro', builder => 1, lazy => 1 );
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 use Role::Tiny qw();
-use Try::Tiny;
+use Try::Tiny  qw( try catch );
 
 use OAuth::Lite2::Client::WebServer;
 
@@ -26,7 +26,7 @@ use OAuth::Lite2::Client::WebServer;
 use Bio::Otter::Auth::Server::RelyingParty::Profile::Google;
 use Bio::Otter::Auth::Server::RelyingParty::Profile::Orcid;
 
-sub _build__service_config {
+sub _build__service_config {    ## no critic(Subroutines::ProhibitUnusedPrivateSubroutines)
     my ($self) = @_;
     if (my $ext_service = $self->ext_service) {
         my $service_config = $self->config->{ext_op}->{$ext_service};
@@ -41,16 +41,19 @@ sub malformed_request {
     my ($self) = @_;
 
     my $es = $self->ext_service;
-    $self->_wm_warn('/:service not specified'), return 1 unless $es;
+    unless ($es) {
+        $self->wm_warn('/:service not specified');
+        return 1;
+    }
 
     unless ($self->_service_config) {
-        $self->_wm_warn("no config for service '$es'");
+        $self->wm_warn("no config for service '$es'");
         return 1;
     }
 
     my $err = $self->_load_profile($es);
     if ($err) {
-        $self->_wm_warn("failed to load profile for service '$es': '$err'");
+        $self->wm_warn("failed to load profile for service '$es': '$err'");
         return 1;
     }
 
