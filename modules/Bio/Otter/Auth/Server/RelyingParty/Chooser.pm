@@ -8,16 +8,33 @@ use warnings;
 use Moo;
 extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
+has callback_uri => ( is => 'rw' );
+
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 use HTML::Tags;
 
 sub malformed_request {
     my ($self) = @_;
-    return if $self->request->session->{exists};
 
-    $self->wm_warn('No session');
-    return 1;
+    unless ($self->request->session->{exists}) {
+        $self->wm_warn('No session');
+        return 1;
+    }
+
+    my $conflict = $self->grab_session_request_param('rp', 'callback_uri');
+    return 1 if $conflict;
+
+    my $cb = $self->callback_uri;
+    unless ($cb) {
+        $self->wm_warn('callback_uri not supplied');
+        return 1;
+    }
+
+    # Stash the callback
+    $self->request->session->{rp}->{callback_uri} = $cb;
+
+    return;
 }
 
 sub content_types_provided { return [{'text/html' => 'to_html'}] }

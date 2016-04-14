@@ -49,8 +49,8 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
             Bio::Otter::Auth::Server::OIDCProvider->token_handler()
         },
 
-        sub ( GET  + /chooser ) {
-            return $self->_web_machine('RelyingParty::Chooser');
+        sub ( GET  + /chooser + ?:callback_uri~ ) {
+            return $self->_web_machine('RelyingParty::Chooser', $_[1]);
         },
         sub ( GET  + /external/:ext_service ) {
             return $self->_web_machine('RelyingParty::External', $_[1]);

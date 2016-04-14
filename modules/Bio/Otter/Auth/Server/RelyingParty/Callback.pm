@@ -62,7 +62,12 @@ sub moved_temporarily {
     $self->request->session->{'auth_info'} = $auth_info;
     $self->request->session_options->{'change_id'} = 1;
 
-    $uri = $self->config->{ott_srv_rp}->{success_uri};
+    if (my $cb = $self->request->session->{rp}->{callback_uri}) {
+        $uri = $cb;
+    } else {
+        $self->wm_warn('no callback_uri in session');
+    }
+
     return $uri;
 }
 

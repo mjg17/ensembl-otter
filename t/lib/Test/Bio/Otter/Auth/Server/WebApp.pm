@@ -50,6 +50,18 @@ sub test_psgi_auth_plack : Tests {
             my $session_cookie = $res->headers->header('Set-Cookie');
             ok $session_cookie, '... has session cookie';
 
+            $req = HTTP::Request->new(GET => 'http://localhost/chooser?callback_uri=blahblah');
+            $req->header('Cookie' => $session_cookie);
+            $res = $cb->($req);
+            is $res->code, 400, 'URI/session conflict';
+
+            # Reset session param
+            $req = HTTP::Request->new(GET => 'http://localhost/authenticate');
+            $res = $cb->($req);
+            is $res->code, 307;     # redirect
+            my $session_cookie = $res->headers->header('Set-Cookie');
+            ok $session_cookie, '... has session cookie';
+
             $req = HTTP::Request->new(GET => 'http://localhost/chooser');
             $req->header('Cookie' => $session_cookie);
             $res = $cb->($req);
