@@ -16,6 +16,8 @@ use Bio::Otter::Auth::Server::OIDCProvider::Authenticate;
 use Bio::Otter::Auth::Server::RelyingParty::Callback;
 use Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use Bio::Otter::Auth::Server::RelyingParty::External;
+use Bio::Otter::Auth::Server::RelyingParty::Success;
+#use Bio::Otter::Auth::Server::RelyingParty::Error;
 
 sub _web_machine {
     my ($self, $resource, $path_params, $query_params) = @_;
@@ -55,6 +57,12 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
         },
         sub ( GET  + /callback/:ext_service + ?:state~&:code~ ) {
             return $self->_web_machine('RelyingParty::Callback', $_[1], $_[2]);
+        },
+        sub ( GET + /rp/success ) {
+            return $self->_web_machine('RelyingParty::Success');
+        },
+        sub ( GET + /rp/error ) {
+            return $self->_web_machine('RelyingParty::Error');
         },
         );
 }

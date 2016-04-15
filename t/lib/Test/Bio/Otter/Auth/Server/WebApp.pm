@@ -95,6 +95,11 @@ sub test_psgi_auth_plack : Tests {
             $req->header('Cookie' => $session_cookie);
             $res = $cb->($req);
             is $res->code, 307, '... callback redirects ...';
+
+            $req = HTTP::Request->new(GET => "http://localhost/rp/success");
+            $res = $cb->($req);
+            is $res->code, 400, '... rp/success needs auth_info session ...';
+
         };
 
     return;

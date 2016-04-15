@@ -50,13 +50,20 @@ sub moved_temporarily {
     my ($self) = @_;
     my $config = $self->_service_config;
 
+    my $uri = $self->config->{ott_srv_rp}->{error_uri};
+
     my ($token, $response) = $self->_get_access_token($self->code);
-    return 'ERROR' unless $token;
+    return $uri unless $token;
 
-    my $user_info = $self->decode_token_response($token, $response);
-    return 'ERROR' unless $user_info;
+    my $auth_info = $self->decode_token_response($token, $response);
+    return $uri unless $auth_info;
 
-    return 'HAVE_TOKEN';    # $uri
+    # success!!
+    $self->request->session->{'auth_info'} = $auth_info;
+    $self->request->session_options->{'change_id'} = 1;
+
+    $uri = $self->config->{ott_srv_rp}->{success_uri};
+    return $uri;
 }
 
 # FIXME: state handling stuff should be somewhere common

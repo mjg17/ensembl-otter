@@ -15,7 +15,8 @@ use HTML::Tags;
 sub malformed_request {
     my ($self) = @_;
     return if $self->request->session->{exists};
-    # FIXME: No session - should log here
+
+    $self->wm_warn('No session');
     return 1;
 }
 
