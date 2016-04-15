@@ -6,7 +6,7 @@ use warnings;
 use OIDC::Lite::Server::Endpoint::Token;
 
 my $token_endpoint = OIDC::Lite::Server::Endpoint::Token->new(
-    data_handler => 'Bio::Otter::Auth::ServerOP::DataHandler',
+    data_handler => 'Bio::Otter::Auth::Server::OIDCProvider::DataHandler',
 );
 $token_endpoint->support_grant_types(qw(authorization_code));
 
