@@ -19,7 +19,8 @@ has _service_config => ( is => 'ro', builder => 1, lazy => 1 );
 use Role::Tiny qw();
 use Try::Tiny  qw( try catch );
 
-use OAuth::Lite2::Client::WebServer;
+# use OAuth::Lite2::Client::WebServer;
+use OIDC::Lite::Client::WebServer;
 
 # TEMP workaround for Apache2 / Otter::Paths only run once ??
 #
@@ -83,7 +84,8 @@ sub previously_existed { return 1; }
 sub web_client {
     my ($self, $config) = @_;
 
-    return OAuth::Lite2::Client::WebServer->new(
+    # Does Orcid need OAuth::Lite2::Client::WebServer ??
+    return OIDC::Lite::Client::WebServer->new(
         id               => $config->{'client_id'},
         secret           => $config->{'client_secret'},
         authorize_uri    => $config->{'authorization_endpoint'},

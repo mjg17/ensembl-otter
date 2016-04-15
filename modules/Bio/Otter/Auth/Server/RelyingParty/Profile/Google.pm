@@ -11,10 +11,30 @@ requires 'wm_warn';
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
+use OIDC::Lite::Model::IDToken;
+
 sub decode_token_response {
     my ($self, $token, $response) = @_;
-    $self->wm_warn('Google decode_token_response not implemented yet.');
-    return;
+
+    my $id_token = OIDC::Lite::Model::IDToken->load($token->id_token);
+    unless ($id_token) {
+        $self->wm_warn('could not load id_token');
+        return;
+    }
+
+    # # this is only necessary if we are not communicating directly with Google over https.
+    #
+    # unless ($id_token->verify) {
+    #     $self->wm_warn('id_token verification failed');
+    #     return;
+    # }
+
+    return {
+        provider     => 'Google',
+        access_token => $token->access_token,
+        identifier   => $id_token->payload->{email},
+        extra        => { email_verified => !!$id_token->payload->{email_verified} },
+    }
 }
 
 1;
