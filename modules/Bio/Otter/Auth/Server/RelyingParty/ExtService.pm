@@ -16,6 +16,9 @@ has _service_config => ( is => 'ro', builder => 1, lazy => 1 );
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
+use Role::Tiny qw();
+use Try::Tiny;
+
 use OAuth::Lite2::Client::WebServer;
 
 sub _build__service_config {
@@ -27,17 +30,41 @@ sub _build__service_config {
     return;
 }
 
+# This is somewhat appropriate, and also a handy early stage in the FSM for setup.
+#
 sub malformed_request {
     my ($self) = @_;
-    $self->_wm_warn('/:service not specified'), return 1 unless $self->ext_service;
+
+    my $es = $self->ext_service;
+    $self->_wm_warn('/:service not specified'), return 1 unless $es;
 
     unless ($self->_service_config) {
-        my $es = $self->ext_service;
         $self->_wm_warn("no config for service '$es'");
         return 1;
     }
 
+    my $err = $self->_load_profile($es);
+    if ($err) {
+        $self->_wm_warn("failed to load profile for service '$es': '$err'");
+        return 1;
+    }
+
     return;
+}
+
+sub _load_profile {
+    my ($self, $ext_service) = @_;
+
+    my $profile = 'Bio::Otter::Auth::Server::RelyingParty::Profile::' . ucfirst $ext_service;
+
+    my $err;
+    try {
+        Role::Tiny->apply_roles_to_object( $self, $profile );
+    }
+    catch {
+        $err = $_ || '(no details)';
+    };
+    return $err;
 }
 
 # Should this be here or elsewhere?
