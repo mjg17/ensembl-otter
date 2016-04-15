@@ -21,6 +21,11 @@ use Try::Tiny;
 
 use OAuth::Lite2::Client::WebServer;
 
+# TEMP workaround for Apache2 / Otter::Paths only run once ??
+#
+use Bio::Otter::Auth::Server::RelyingParty::Profile::Google;
+use Bio::Otter::Auth::Server::RelyingParty::Profile::Orcid;
+
 sub _build__service_config {
     my ($self) = @_;
     if (my $ext_service = $self->ext_service) {
