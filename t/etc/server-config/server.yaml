@@ -1,42 +1,42 @@
 # core non-private server config common to all streams
 ---
+LOCAL:
+  v_auth_base: __LOCAL(server_base)__
+  #
 ott_srv:
   CHI:
     driver: DBI
     DBI:
       dbspec:   otterlive_rw
-      database: otter_server
+      database: otter_server___STREAM__
     # l1_cache:
     #   driver: Memcached
     #   # servers: see .local/server.__STREAM__.yaml
-    namespace: server___STREAM___sessions
+    namespace: server_sessions
     #
   session_key: otter___STREAM___sid
   #
 ott_srv_op:
-  callback_uri: __LOCAL(uri_base)__/op/callback
+  callback_uri: __LOCAL(v_auth_base)__/op/callback
   id_token:
-    iss:        __LOCAL(uri_base)__/auth
+    iss:        __LOCAL(v_auth_base)__
     expires_in: 604800 # 3600*24*7 TBD
   #
 ott_srv_rp:
-  chooser_uri: __LOCAL(uri_base)__/chooser
-  success_uri: __LOCAL(uri_base)__/rp/success
-  error_uri  : __LOCAL(uri_base)__/rp/error
+  chooser_uri: __LOCAL(v_auth_base)__/chooser
+  success_uri: __LOCAL(v_auth_base)__/rp/success
+  error_uri  : __LOCAL(v_auth_base)__/rp/error
   #
 ext_op:
-  ext_uri_base: __LOCAL(uri_base)__/external
+  ext_uri_base: __LOCAL(v_auth_base)__/external
   google:
     title:                  Google
     authorization_endpoint: https://accounts.google.com/o/oauth2/auth
     token_endpoint:         https://accounts.google.com/o/oauth2/token
     scope:                  openid email profile
-    redirect_uri:           __LOCAL(uri_base)__/auth/callback/google
-    auth_extra:
-      # Why is this set?
-      access_type: offline
+    redirect_uri:           __LOCAL(server_base)__/auth/callback/google
   orcid:
     title:                  ORCID
-    scope:         /orcid-profile/read-limited
-    redirect_uri:  __LOCAL(uri_base)__/auth/callback/orcid
+    scope:                  /orcid-profile/read-limited
+    redirect_uri:           __LOCAL(server_base)__/auth/callback/orcid
 ...
