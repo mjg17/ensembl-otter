@@ -4,11 +4,11 @@ LOCAL:
   v_auth_base: __LOCAL(server_base)__
   #
 ott_srv:
+  DBI:
+    dbspec:   otterlive_rw
+    database: otter_server___STREAM__
   CHI:
     driver: DBI
-    DBI:
-      dbspec:   otterlive_rw
-      database: otter_server___STREAM__
     # l1_cache:
     #   driver: Memcached
     #   # servers: see .local/server.__STREAM__.yaml

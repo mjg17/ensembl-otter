@@ -3,18 +3,21 @@ use warnings;
 
 use Otter::Paths qw(otter);
 
+use CHI;
+
 use Plack::Builder;
 use Plack::Session::Store::Cache;
 use Plack::Session::State::Cookie;
 
-use Bio::Otter::Auth::Server::CHI;
+use Bio::Otter::Auth::Server::DB::Handle;
 use Bio::Otter::Auth::Server::WebApp;
 use Bio::Otter::Server::Config;
 
 my $config = Bio::Otter::Server::Config->Server;
 
-# Session and DB setup
-my $chi = Bio::Otter::Auth::Server::CHI->new(%{$config->{ott_srv}->{CHI}});
+# Session cache
+my $dbh = Bio::Otter::Auth::Server::DB::Handle->dbh;
+my $chi = CHI->new(%{$config->{ott_srv}->{CHI}}, dbh => $dbh);
 
 builder {
 
