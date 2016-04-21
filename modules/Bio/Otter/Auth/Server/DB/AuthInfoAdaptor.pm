@@ -38,6 +38,11 @@ sub check_object {
     return $auth_info;
 }
 
+sub fetch_by_id {
+    my ($self, $id) = @_;
+    return $self->fetch_by_key($id);
+}
+
 sub fetch_by_code {
     my ($self, $code) = @_;
     my $sth = $self->_fetch_by_code_sth;
