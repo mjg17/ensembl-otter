@@ -18,3 +18,7 @@ dbspec:
     -host: vm-mii-otlp
     -port: 3324
     -ro_dbspec: otlp_slave
+  otterpipe2_rw:
+    -host: none
+    -port: 55555
+    -user: none

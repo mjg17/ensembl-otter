@@ -5,7 +5,7 @@ use Test::Class::Most
 
 use Plack::Request;
 
-use Bio::Otter::Auth::Server::WebApp::Resource;
+use Bio::Otter::Auth::Server::OIDCProvider::Authorise;
 use Bio::Otter::Auth::Server::DB::Handle;
 use Bio::Otter::Auth::Server::DB::AuthInfoAdaptor;
 
@@ -15,7 +15,8 @@ sub our_args {
         QUERY_STRING   => q{client_id=sample_client_id&nonce=random_nonce_str},
                                   });
     return [
-        wm_resource => Bio::Otter::Auth::Server::WebApp::Resource->new(
+        wm_resource => Bio::Otter::Auth::Server::OIDCProvider::Authorise->new(
+            auth_info => { provider => 'Google', identifier => 'read-check@google.com' },
             config => {
                 # FIXME: dup with t/etc/server-config/server.yaml*
                 ott_srv_op => {
@@ -49,7 +50,7 @@ sub create_id_token : Tests {
     is( $id_token->payload->{aud}, q{sample_client_id}, q{id_token : payload : aud} );
     is( $id_token->payload->{iat}, time(), q{id_token : payload : iat} );
     is( $id_token->payload->{exp}, time() + 604800, q{id_token : payload : exp} );
-    is( $id_token->payload->{sub}, 1, q{id_token : payload : sub} );
+    is( $id_token->payload->{sub}, q{read-check@fictitious.sanger.ac.uk}, q{id_token : payload : sub} );
     is( $id_token->payload->{nonce}, q{random_nonce_str}, q{id_token : payload : nonce} );
 
     return;

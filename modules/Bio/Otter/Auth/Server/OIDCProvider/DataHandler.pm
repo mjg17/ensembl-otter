@@ -23,6 +23,7 @@ use OIDC::Lite::Model::IDToken;
 use Bio::Otter::Auth::Server::OIDCProvider::AccessToken;
 use Bio::Otter::Auth::Server::OIDCProvider::AuthInfo;
 use Bio::Otter::Auth::Server::DB::AuthInfoAdaptor;
+use Bio::Otter::Server::Config;
 
 sub _build_config {    ## no critic(Subroutines::ProhibitUnusedPrivateSubroutines)
     my ($self) = @_;
@@ -127,10 +128,18 @@ sub validate_acr_values {
 sub get_user_id_for_authorization {
     my ($self) = @_;
 
-    # This is probably where we want to do the translation - we need enough info to do it.
+    # This is where we do the translation.
 
-    # dummy user ID
-    return 1;
+    my $rp_auth_info = $self->wm_resource->auth_info;
+    my $ext_id   =    $rp_auth_info->{identifier};
+    my $provider = lc $rp_auth_info->{provider};
+
+    my $user = Bio::Otter::Server::Config->Access->user_by_alias($provider, $ext_id);
+    die "no alias for ($provider:$ext_id)\n" unless $user;
+
+    my $user_id = $user->email;
+    $self->_warn("translated ($provider:$ext_id) to '$user_id'");
+    return $user_id;
 }
 
 sub create_id_token {

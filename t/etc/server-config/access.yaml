@@ -21,7 +21,7 @@ user_groups:
       - anacode
       - jgrg
       - hav-test
-      - mg13
+      - mg13:
           write:
             - mouse_test
   anacode_auth_test:
@@ -37,3 +37,6 @@ user_groups:
             - :main
             - :restricted
             - :dev
+user_aliases:
+  read-check@fictitious.sanger.ac.uk:
+    google: read-check@google.com
