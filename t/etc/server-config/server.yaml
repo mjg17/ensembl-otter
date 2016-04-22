@@ -17,7 +17,8 @@ ott_srv:
   session_key: otter___STREAM___sid
   #
 ott_srv_op:
-  callback_uri: __LOCAL(v_auth_base)__/op/callback
+  callback_uri: __LOCAL(v_auth_base)__/op/authorise
+  error_uri:    __LOCAL(v_auth_base)__/op/error
   id_token:
     iss:        __LOCAL(v_auth_base)__
     expires_in: 604800 # 3600*24*7 TBD

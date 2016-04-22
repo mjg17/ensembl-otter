@@ -59,7 +59,7 @@ sub moved_temporarily {
     return $uri unless $auth_info;
 
     # success!!
-    $self->request->session->{'auth_info'} = $auth_info;
+    $self->set_session_request_param('op', 'auth_info', $auth_info);
     $self->request->session_options->{'change_id'} = 1;
 
     if (my $cb = $self->request->session->{rp}->{callback_uri}) {

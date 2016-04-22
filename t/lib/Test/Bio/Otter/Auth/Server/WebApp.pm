@@ -28,8 +28,9 @@ sub test_psgi_auth_basics : Tests {
 }
 
 sub test_psgi_auth_plack : Tests {
+    my ($test) = @_;
 
-    $ENV{OTTER_MAJOR} = '102'; # TMP - what to do longer-term?
+    $ENV{OTTER_MAJOR} = '103'; # TMP - what to do longer-term?
 
     my $app = Plack::Util::load_psgi $auth_script;
 
@@ -48,6 +49,7 @@ sub test_psgi_auth_plack : Tests {
             is $res->code, 307;     # redirect
             is $res->headers->header('Location'), 'NOT_SET/chooser';
             my $session_cookie = $res->headers->header('Set-Cookie');
+            note("Cookie: ", $session_cookie);
             ok $session_cookie, '... has session cookie';
 
             $req = HTTP::Request->new(GET => 'http://localhost/chooser?callback_uri=blahblah');
@@ -59,7 +61,7 @@ sub test_psgi_auth_plack : Tests {
             $req = HTTP::Request->new(GET => 'http://localhost/authenticate');
             $res = $cb->($req);
             is $res->code, 307;     # redirect
-            my $session_cookie = $res->headers->header('Set-Cookie');
+            $session_cookie = $res->headers->header('Set-Cookie');
             ok $session_cookie, '... has session cookie';
 
             $req = HTTP::Request->new(GET => 'http://localhost/chooser');
@@ -112,6 +114,42 @@ sub test_psgi_auth_plack : Tests {
             $res = $cb->($req);
             is $res->code, 400, '... rp/success needs auth_info session ...';
 
+            $req = HTTP::Request->new(GET => "http://localhost/op/authorise");
+            $res = $cb->($req);
+            is $res->code, 400, '... op/authorise needs auth_info session ...';
+
+            # otter_TEST_sid=1c342861342aaa78060ba040dac28f7219f23d39; path=/
+            my $sid =       'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+            $test->create_session($sid, { 'op' => { '_request' => { 'auth_info' => {
+                'provider'   => 'Google',
+                'identifier' => 'mickey@mouse.disney',
+                                                                    } } } });
+            # Should response_type, client_id, etc., get injected in Authorise.pm?
+            $req = HTTP::Request->new(GET =>
+          "http://localhost/op/authorise?response_type=code&client_id=TEST&redirect_uri=/REDIRECT&scope=openid+email");
+            $req->header('Cookie' => "otter_TEST_sid=${sid}; path=/");
+            $res = $cb->($req);
+            is $res->code, 307, '... op/authorise does something? ...';
+            $location = $res->headers->header('Location');
+            like $location, qr(^NOT_SET/op/error), '... error';
+
+            $test->create_session($sid, { 'op' => { '_request' => { 'auth_info' => {
+                'provider'   => 'Google',
+                'identifier' => 'read-check@google.com',
+                                                                    },
+                                                    },
+                                                    'callback_uri' => '/REDIRECT_from_session' } } );
+            $req = HTTP::Request->new(GET =>
+          "http://localhost/op/authorise?response_type=code&client_id=TEST&redirect_uri=/REDIRECT&scope=openid+email&state=xyzzy");
+            $req->header('Cookie' => "otter_TEST_sid=${sid}; path=/");
+            $res = $cb->($req);
+            is $res->code, 307, '... op/authorise does something? ...';
+            $location = $res->headers->header('Location');
+            like $location, qr(^/REDIRECT_from_session), '... success!!';
+            my $uri = URI->new($location);
+            ok $uri->query_param('code'), '... have code';
+            is $uri->query_param('state'), 'xyzzy', '... state';
+
         };
 
     return;
@@ -157,6 +195,19 @@ sub test_psgi_redirect_plack : Tests {
             $res = $cb->($req);
             is $res->code, 400, 'fail bad uri ...';
     };
+
+    return;
+}
+
+sub create_session {
+    my ($test, $id, $session) = @_;
+
+    my $config = Bio::Otter::Server::Config->Server;
+    my $dbh    = Bio::Otter::Auth::Server::DB::Handle->dbh;
+    my $chi    = CHI->new(%{$config->{ott_srv}->{CHI}}, dbh => $dbh);
+
+    my $store = Plack::Session::Store::Cache->new(cache => $chi);
+    $store->store($id, $session);
 
     return;
 }

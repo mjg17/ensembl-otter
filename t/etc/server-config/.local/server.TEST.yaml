@@ -2,3 +2,28 @@
 ---
 LOCAL:
   server_base: NOT_SET
+ott_srv_op:
+  id_token:
+    pub_key: |
+      -----BEGIN PUBLIC KEY-----
+      MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDZ+7i5+sLeAvPsO22LC1WgFYDa
+      +40ffLneuPYndEkR3ycL4E4H/Pn6GQhLW3GPi9Lq181phrEiDWBU6w1alRnVpdyF
+      FSAGQ3WyENr+OTpHptBEQxBgEJINMEQ12oPypeZyIfCrpab2S0XZWIntra3AOhzN
+      wFJQgVrkTopdWcrFtwIDAQAB
+      -----END PUBLIC KEY-----
+    priv_key: |
+      -----BEGIN RSA PRIVATE KEY-----
+      MIICWwIBAAKBgQDZ+7i5+sLeAvPsO22LC1WgFYDa+40ffLneuPYndEkR3ycL4E4H
+      /Pn6GQhLW3GPi9Lq181phrEiDWBU6w1alRnVpdyFFSAGQ3WyENr+OTpHptBEQxBg
+      EJINMEQ12oPypeZyIfCrpab2S0XZWIntra3AOhzNwFJQgVrkTopdWcrFtwIDAQAB
+      AoGBAKi0+5llDKCLJIH21KdClHiba+kPu39dJvXLrSeIBm2AilXUuk/QaSA5c4Pv
+      OArjKtB7SQ2dI0a5l47hhKpQr3aOyxHrSEonOIF9Xv9Oa3w0fmusb7tEV2FS0Q4Z
+      2YNC2LRn24p7oCyw3qOH3cI8zrnD1GRCP/Uenj+SB6nfrq4RAkEA+8LTtxHSq10Z
+      4aAxbfFtM9pENkhsNy5drTXOE45BBZH9UFjrafm/sUh9TBp747EBev8t9m65lNIH
+      xNX/NoI+1QJBAN2nTSPSHQaf6gyk9Sn0V1hemx+W8k3sk0Rra048DiDKFAMa9EDA
+      LcOH5qZoBlKojmcFws1kAGVQvI7WF9McsFsCQBW8Oj8B4Og+f2+FPv846q6hV2ZA
+      VmdlL1022fXCQEbU1cPMCXb6wtvxYC/j0XJU48XUpgkygf8hKt6JgyEXmYkCQGe0
+      qjPzT99UnMYzu/1YNDHFeeDK2C27XZ/qfndJQ/b1dW2Kg/NztzW/9Ruwmhy8fnwX
+      RvCgNEsy/jX6V4VP6/cCP0jhNhi1y3xkU9kUDA19fIB/YKN8NiTXhNaaB07AB3Mw
+      zQlxkS/HYkuno+rWdojKQ7nk5UAi7oj3RVy3zKyICw==
+      -----END RSA PRIVATE KEY-----

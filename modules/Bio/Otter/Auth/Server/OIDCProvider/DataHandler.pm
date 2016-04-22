@@ -68,6 +68,7 @@ sub validate_server_state {
 
 sub validate_scope {
     my ($self, $client_id, $scope) = @_;
+    $scope //= '<not-set>';
     $self->_warn("validated client_id '$client_id' for scope '$scope'");
     return 1;
 }

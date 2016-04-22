@@ -13,6 +13,7 @@ use Bio::Otter::Auth::Server::WebApp::Machine;
 # TEMP workaround for Apache2 / Otter::Paths only run once ??
 #
 use Bio::Otter::Auth::Server::OIDCProvider::Authenticate;
+use Bio::Otter::Auth::Server::OIDCProvider::Authorise;
 use Bio::Otter::Auth::Server::RelyingParty::Callback;
 use Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use Bio::Otter::Auth::Server::RelyingParty::External;
@@ -47,6 +48,9 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
         },
         sub ( GET + /token ) {  # TMP for testing
             Bio::Otter::Auth::Server::OIDCProvider->token_handler()
+        },
+        sub ( GET + /op/authorise ) {
+            return $self->_web_machine('OIDCProvider::Authorise', $_[1]);
         },
 
         sub ( GET  + /chooser + ?:callback_uri~ ) {
