@@ -118,30 +118,19 @@ sub test_psgi_auth_plack : Tests {
             $res = $cb->($req);
             is $res->code, 400, '... op/authorise needs auth_info session ...';
 
-            # otter_TEST_sid=1c342861342aaa78060ba040dac28f7219f23d39; path=/
-            my $sid =       'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
-            $test->create_session($sid, { 'op' => { '_request' => { 'auth_info' => {
-                'provider'   => 'Google',
-                'identifier' => 'mickey@mouse.disney',
-                                                                    } } } });
             # Should response_type, client_id, etc., get injected in Authorise.pm?
-            $req = HTTP::Request->new(GET =>
-          "http://localhost/op/authorise?response_type=code&client_id=TEST&redirect_uri=/REDIRECT&scope=openid+email");
-            $req->header('Cookie' => "otter_TEST_sid=${sid}; path=/");
+            $req = HTTP::Request->new(GET => "http://localhost/op/authorise");
+            my $cookie_spec = $test->_create_session_and_cookie_spec();
+            $req->header('Cookie' => $cookie_spec);
             $res = $cb->($req);
             is $res->code, 307, '... op/authorise does something? ...';
             $location = $res->headers->header('Location');
             like $location, qr(^NOT_SET/op/error), '... error';
 
-            $test->create_session($sid, { 'op' => { '_request' => { 'auth_info' => {
-                'provider'   => 'Google',
-                'identifier' => 'read-check@google.com',
-                                                                    },
-                                                    },
-                                                    'callback_uri' => '/REDIRECT_from_session' } } );
-            $req = HTTP::Request->new(GET =>
-          "http://localhost/op/authorise?response_type=code&client_id=TEST&redirect_uri=/REDIRECT&scope=openid+email&state=xyzzy");
-            $req->header('Cookie' => "otter_TEST_sid=${sid}; path=/");
+            $req = HTTP::Request->new(GET => "http://localhost/op/authorise");
+            $cookie_spec = $test->_create_session_and_cookie_spec(
+                'read-check@google.com', '/REDIRECT_from_session', 'xyzzy');
+            $req->header('Cookie' => $cookie_spec);
             $res = $cb->($req);
             is $res->code, 307, '... op/authorise does something? ...';
             $location = $res->headers->header('Location');
@@ -153,6 +142,35 @@ sub test_psgi_auth_plack : Tests {
         };
 
     return;
+}
+
+sub _create_session_and_cookie_spec {
+    my ($test, $identifier, $redirect, $state) = @_;
+    $identifier //= 'mickey@mouse.disney';
+    $redirect   //= '/SHOULD_NOT_BE_USED';
+
+    # otter_TEST_sid=1c342861342aaa78060ba040dac28f7219f23d39; path=/
+    my $sid =       'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+
+    $test->_create_session($sid, {
+        'op' => {
+            '_request' => {
+                'auth_info' => {
+                    'provider'   => 'Google',
+                    'identifier' => $identifier,
+                }
+            },
+            'auth_request' => {
+                response_type => 'code',
+                callback_uri  => $redirect,
+                scope         => 'openid email',
+                client_id     => 'test-client',
+                $state ? ('state' => $state) : (),
+            },
+        }
+                          });
+    my $cookie_spec = "otter_TEST_sid=${sid}; path=/";
+    return $cookie_spec;
 }
 
 sub test_psgi_redirect_basics : Tests {
@@ -199,7 +217,7 @@ sub test_psgi_redirect_plack : Tests {
     return;
 }
 
-sub create_session {
+sub _create_session {
     my ($test, $id, $session) = @_;
 
     my $config = Bio::Otter::Server::Config->Server;

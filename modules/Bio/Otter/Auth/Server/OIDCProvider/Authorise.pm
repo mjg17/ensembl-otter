@@ -8,7 +8,9 @@ use warnings;
 use Moo;
 extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
-has auth_info => ( is => 'rw' );
+has auth_info    => ( is => 'rw' );
+has auth_request => ( is => 'rw' );
+has callback_uri => ( is => 'rw' );
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
@@ -33,6 +35,40 @@ sub malformed_request {
         $self->wm_warn('No auth_info');
         return 1;
     }
+
+    my $auth_request = $self->request->session->{op}->{auth_request};
+    my $params = $self->request->parameters;
+
+    if ($auth_request) {
+        # Inject auth_request values back into the request (a bit nasty!)
+        foreach my $key ( qw{
+        cli_instance
+        state
+        callback_uri
+        redirect_uri
+        response_type
+        client_id
+        scope
+                        } ) {
+            if (my $value = $auth_request->{$key}) {
+                if ($params->get($key)) {
+                    $self->wm_warn("Conflict for parameter '$key'");
+                    return 1;
+                }
+                $params->set($key, $value);
+            }
+        }
+    } else {
+        $self->wm_warn('No op.auth_request session parameters');
+    }
+
+    # callback_uri is our alias for redirect_uri
+    if ($params->get('callback_uri') and $params->get('redirect_uri')) {
+        $self->wm_warn("Conflict, have parameters 'callback_uri' and 'redirect_uri'");
+        return 1;
+    }
+    $params->set('redirect_uri', $params->get('callback_uri'));
+    $self->callback_uri($params->get('callback_uri'));
 
     return;
 }
@@ -71,7 +107,7 @@ sub moved_temporarily {
     # success!!
     $self->request->session_options->{'change_id'} = 1;
 
-    if (my $cb = $self->request->session->{op}->{callback_uri}) {
+    if (my $cb = $self->callback_uri) {
         $uri = $cb;
     } else {
         $self->wm_warn('no callback in session');

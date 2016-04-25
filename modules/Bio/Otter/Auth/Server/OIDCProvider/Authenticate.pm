@@ -12,6 +12,11 @@ has cli_instance => ( is => 'ro' );
 has state        => ( is => 'ro' );
 has callback_uri => ( is => 'ro' );
 
+# Do we want to give these defaults?
+has response_type => ( is => 'ro' );
+has client_id     => ( is => 'ro' );
+has scope         => ( is => 'ro' );
+
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
 sub init {
@@ -34,10 +39,13 @@ sub malformed_request {
     my ($self) = @_;
 
     # Stash the authenticate request parameters
-    $self->request->session->{op} = {
+    $self->request->session->{op}->{auth_request} = {
         cli_instance => $self->cli_instance,
         state        => $self->state,
         callback_uri => $self->callback_uri,
+        response_type=> $self->response_type,
+        client_id    => $self->client_id,
+        scope        => $self->scope,
     };
     return;
 }
