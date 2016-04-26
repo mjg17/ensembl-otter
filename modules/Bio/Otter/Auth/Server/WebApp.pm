@@ -40,7 +40,7 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
     my ($self) = @_;
     return (
 
-        sub ( GET  + /authenticate + ?:cli_instance~&:state~&:callback_uri~ ) {
+        sub ( GET  + /authenticate + ?:client_id~&:cli_instance~&:state~&:callback_uri~&:response_type~&:scope~ ) {
             return $self->_web_machine('OIDCProvider::Authenticate', $_[1]);
         },
         sub ( POST + /token ) {
