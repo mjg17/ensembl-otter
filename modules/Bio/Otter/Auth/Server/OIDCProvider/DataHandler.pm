@@ -222,6 +222,21 @@ sub get_access_token {
     return Bio::Otter::Auth::Server::OIDCProvider::AccessToken->validate($token);
 }
 
+sub validate_client {
+    my ($self, $client_id, $client_secret, $grant_type) = @_;
+
+    return unless $self->validate_client_by_id($client_id);
+
+    # verify client_secret
+    $self->_warn('ignoring client secret!!');
+    # return unless $client->{client_secret} eq $client_secret;
+
+    # verify grant type
+    $self->_warn('ignoring client allowed grant types');
+
+    return 1;
+}
+
 sub _warn {
     my ($self, @messages) = @_;
     warn sprintf('[w] %s: ', ref($self)), @messages, "\n";

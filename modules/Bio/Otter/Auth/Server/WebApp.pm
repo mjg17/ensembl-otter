@@ -14,6 +14,7 @@ use Bio::Otter::Auth::Server::WebApp::Machine;
 #
 use Bio::Otter::Auth::Server::OIDCProvider::Authenticate;
 use Bio::Otter::Auth::Server::OIDCProvider::Authorise;
+use Bio::Otter::Auth::Server::OIDCProvider::Token;
 use Bio::Otter::Auth::Server::RelyingParty::Callback;
 use Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use Bio::Otter::Auth::Server::RelyingParty::External;
@@ -43,11 +44,8 @@ sub dispatch_request {     ## no critic (Subroutines::RequireArgUnpacking)
         sub ( GET  + /authenticate + ?:client_id~&:cli_instance~&:state~&:callback_uri~&:response_type~&:scope~ ) {
             return $self->_web_machine('OIDCProvider::Authenticate', $_[1]);
         },
-        sub ( POST + /token ) {
-            Bio::Otter::Auth::Server::OIDCProvider->token_handler()
-        },
-        sub ( GET + /token ) {  # TMP for testing
-            Bio::Otter::Auth::Server::OIDCProvider->token_handler()
+        sub ( POST + /token + %:client_id~&:client_secret~&:grant_type~&:redirect_uri~&:code~ ) {
+            return $self->_web_machine('OIDCProvider::Token', $_[1]);
         },
         sub ( GET + /op/authorise ) {
             return $self->_web_machine('OIDCProvider::Authorise', $_[1]);

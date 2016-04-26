@@ -3,6 +3,7 @@ package Test::Bio::Otter::Auth::Server::WebApp;
 use Test::Class::Most
     parent     => 'Test::Bio::Otter::Auth::Server';
 
+use HTTP::Request::Common qw( POST );
 use Plack::Test;
 use Plack::Util;
 use URI;
@@ -136,9 +137,34 @@ sub test_psgi_auth_plack : Tests {
             $location = $res->headers->header('Location');
             like $location, qr(^/REDIRECT_from_session), '... success!!';
             my $uri = URI->new($location);
-            ok $uri->query_param('code'), '... have code';
+            my $code = $uri->query_param('code');
+            ok $code, '... have code';
             is $uri->query_param('state'), 'xyzzy', '... state';
 
+            $req = POST "http://localhost/token", [ 'grant_type' => 'authorization_code' ];
+            $res = $cb->($req);
+            is $res->code, 400, '... POST token - bad request ...';
+
+            $req = POST "http://localhost/token", [
+                'grant_type'    => 'authorization_code',
+                'client_id'     => 'test-client-id',
+                'client_secret' => 'test-client-secret',
+                'code'          => 'xyzzyzzy',
+                'redirect_uri'  => '/REDIRECT_from_session',
+            ];
+            $res = $cb->($req);
+            is $res->code, 401, '... POST token - bad code ...';
+
+            $req = POST "http://localhost/token", [
+                'grant_type'    => 'authorization_code',
+                'client_id'     => 'test-client-id',
+                'client_secret' => 'test-client-secret',
+                'code'          => $code,
+                'redirect_uri'  => '/REDIRECT_from_session',
+            ];
+            $res = $cb->($req);
+            is $res->code, 200, '... POST token - got there! ...';
+            note "Content: ", $res->content;
         };
 
     return;
@@ -164,7 +190,7 @@ sub _create_session_and_cookie_spec {
                 response_type => 'code',
                 callback_uri  => $redirect,
                 scope         => 'openid email',
-                client_id     => 'test-client',
+                client_id     => 'test-client-id',
                 $state ? ('state' => $state) : (),
             },
         }
