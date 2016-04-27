@@ -119,12 +119,11 @@ sub test_psgi_auth_plack : Tests {
             $res = $cb->($req);
             is $res->code, 400, '... op/authorise needs auth_info session ...';
 
-            # Should response_type, client_id, etc., get injected in Authorise.pm?
             $req = HTTP::Request->new(GET => "http://localhost/op/authorise");
             my $cookie_spec = $test->_create_session_and_cookie_spec();
             $req->header('Cookie' => $cookie_spec);
             $res = $cb->($req);
-            is $res->code, 307, '... op/authorise does something? ...';
+            is $res->code, 307, '... op/authorise redirects to error ...';
             $location = $res->headers->header('Location');
             like $location, qr(^NOT_SET/op/error), '... error';
 
@@ -188,7 +187,7 @@ sub _create_session_and_cookie_spec {
             },
             'auth_request' => {
                 response_type => 'code',
-                callback_uri  => $redirect,
+                redirect_uri  => $redirect,
                 scope         => 'openid email',
                 client_id     => 'test-client-id',
                 $state ? ('state' => $state) : (),

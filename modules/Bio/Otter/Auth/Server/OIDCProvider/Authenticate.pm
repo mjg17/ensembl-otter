@@ -10,7 +10,7 @@ extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
 has cli_instance => ( is => 'ro' );
 has state        => ( is => 'ro' );
-has callback_uri => ( is => 'ro' );
+has redirect_uri => ( is => 'ro' );
 
 # Do we want to give these defaults?
 has response_type => ( is => 'ro' );
@@ -42,7 +42,7 @@ sub malformed_request {
     $self->request->session->{op}->{auth_request} = {
         cli_instance => $self->cli_instance,
         state        => $self->state,
-        callback_uri => $self->callback_uri,
+        redirect_uri => $self->redirect_uri,
         response_type=> $self->response_type,
         client_id    => $self->client_id,
         scope        => $self->scope,

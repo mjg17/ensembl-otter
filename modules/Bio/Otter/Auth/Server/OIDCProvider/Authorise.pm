@@ -9,8 +9,7 @@ use Moo;
 extends 'Bio::Otter::Auth::Server::WebApp::Resource';
 
 has auth_info    => ( is => 'rw' );
-has auth_request => ( is => 'rw' );
-has callback_uri => ( is => 'rw' );
+has redirect_uri => ( is => 'rw' );
 
 ## use critic(Subroutines::ProhibitCallsToUndeclaredSubs)
 
@@ -44,7 +43,6 @@ sub malformed_request {
         foreach my $key ( qw{
         cli_instance
         state
-        callback_uri
         redirect_uri
         response_type
         client_id
@@ -62,13 +60,7 @@ sub malformed_request {
         $self->wm_warn('No op.auth_request session parameters');
     }
 
-    # callback_uri is our alias for redirect_uri
-    if ($params->get('callback_uri') and $params->get('redirect_uri')) {
-        $self->wm_warn("Conflict, have parameters 'callback_uri' and 'redirect_uri'");
-        return 1;
-    }
-    $params->set('redirect_uri', $params->get('callback_uri'));
-    $self->callback_uri($params->get('callback_uri'));
+    $self->redirect_uri($params->get('redirect_uri'));
 
     return;
 }
@@ -107,7 +99,7 @@ sub moved_temporarily {
     # success!!
     $self->request->session_options->{'change_id'} = 1;
 
-    if (my $cb = $self->callback_uri) {
+    if (my $cb = $self->redirect_uri) {
         $uri = $cb;
     } else {
         $self->wm_warn('no callback in session');
