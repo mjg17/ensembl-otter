@@ -6,6 +6,8 @@ use warnings;
 use Web::Simple;                # becomes our parent
 
 use Module::Load qw( load );
+use Plack::Builder;
+use Plack::Request;
 
 use Bio::Otter::Auth::Server::OIDCProvider;
 use Bio::Otter::Auth::Server::WebApp::Machine;
@@ -20,6 +22,35 @@ use Bio::Otter::Auth::Server::RelyingParty::Chooser;
 use Bio::Otter::Auth::Server::RelyingParty::External;
 use Bio::Otter::Auth::Server::RelyingParty::Success;
 #use Bio::Otter::Auth::Server::RelyingParty::Error;
+
+# These shenanigans are to give Plack::Request first dibs on body
+# parameters, before Web::Simple (not-so-simple?) gobbles them
+# up.
+# Subsequent Plack::Requests then know how to Do The Right Thing.
+
+around 'to_psgi_app' => sub { ##  no critic(Subroutines::ProhibitCallsToUndeclaredSubs)
+    my ($orig, $self) = (shift, shift);
+    my $app = $self->$orig(@_);
+    builder {
+        enable sub {
+            my $app = shift;
+            sub {
+                my $env = shift;
+
+                # do preprocessing
+                my $req = Plack::Request->new($env);
+                $req->body_parameters;
+
+                my $res = $app->($env);
+
+                # no postprocessing
+
+                return $res;
+            };
+        };
+        $app;
+    };
+};
 
 sub _web_machine {
     my ($self, $resource, $path_params, $query_params) = @_;

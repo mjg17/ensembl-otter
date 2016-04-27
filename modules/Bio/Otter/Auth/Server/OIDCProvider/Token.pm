@@ -88,10 +88,6 @@ sub is_authorized {
     $handler->{client_id} = $self->client_id();
     $handler->{client_secret} = $self->client_secret();
 
-    # Web::Simple mucks leaves input buffer used, so reset it if we can:
-    my $input = $self->request->input;
-    $input->seek(0, 0) if $input;
-
     my $result;
     try {
         $result = $handler->handle_request($data_handler);
