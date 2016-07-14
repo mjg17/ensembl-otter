@@ -1,5 +1,13 @@
 # may be overridden in server_<stream>.yaml, esp sandbox for ext_op sandbox credentials
 ---
+ott_srv_op:
+  # Generate ids with:     openssl rand -base64  9 | tr '+/=' '-_.'
+  # Generate secrets with: openssl rand -base64 18 | tr '+/=' '-_.'
+  clients:
+    - APP-TEST:
+      name:          Test client
+      secret:        fgZXZoUPQTIEsEAaqUasrpj8
+      redirect_uris: http://test.client/callback
 ext_op:
   google:
     client_id:     My_Google_Client_ID
